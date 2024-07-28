@@ -47,6 +47,7 @@ export class OpenAPI {
             key = key.substring(1);
         }
         const result = await DB.selectFrom('sub_store').selectAll().where('key', '=', key).executeTakeFirst();
+        console.log(result)
         return !result ? null : JSON.parse(result.data);
     }
 

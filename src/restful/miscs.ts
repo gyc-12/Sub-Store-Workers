@@ -1,14 +1,14 @@
 import $ from '../core/app';
-import { failed, success } from './response';
-import { version as substoreVersion } from '../../package.json';
-import { updateArtifactStore, updateGitHubAvatar } from './settings';
+import {failed, success} from './response';
+import {version as substoreVersion} from '../../package.json';
+import {updateArtifactStore, updateGitHubAvatar} from './settings';
 import resourceCache from '../utils/resource-cache';
 import {
     GIST_BACKUP_FILE_NAME,
     GIST_BACKUP_KEY,
     SETTINGS_KEY,
 } from '../constants';
-import { InternalServerError, RequestInvalidError } from './errors';
+import {InternalServerError, RequestInvalidError} from './errors';
 import Gist from '../utils/gist';
 import migrate from '../utils/migration';
 import { Context, Hono } from 'hono';
@@ -56,9 +56,9 @@ const refresh = async (c: Context) => {
 }
 
 const gistBackup = async (c: Context) => {
-    const { action } = c.req.query();
+    const {action} = c.req.query();
     // read token
-    const { gistToken } = await $.read(SETTINGS_KEY);
+    const {gistToken} = await $.read(SETTINGS_KEY);
     if (!gistToken) {
         return failed(
             c,
@@ -85,7 +85,7 @@ const gistBackup = async (c: Context) => {
                     $.info(`上传备份中...`);
                     try {
                         await gist.upload({
-                            [GIST_BACKUP_FILE_NAME]: { content },
+                            [GIST_BACKUP_FILE_NAME]: {content},
                         });
                     } catch (err) {
                         // restore syncTime if upload failed
@@ -99,14 +99,28 @@ const gistBackup = async (c: Context) => {
                     content = await gist.download(GIST_BACKUP_FILE_NAME);
                     $.info(`还原备份中...222`);
                     // restore settings
+
                     await $.write(content, '#sub-store');
+
+                    if (content.subs !== undefined) {
+                        console.log('123123'+content.subs)
+                        await $.write(content.subs, '#subs');
+                    }
+
+                    if (content.collections !== undefined) {
+                        await $.write(content.collections, '#collections');
+                    }
+
+                    if (content.artifacts !== undefined) {
+                        await $.write(content.artifacts, '#artifacts');
+                    }
                     // perform migration after restoring from gist
                     migrate();
                     break;
             }
             return success(c);
         } catch (err) {
-            $.info('12324'+JSON.stringify(err));
+            $.info('12324' + JSON.stringify(err));
             return failed(
                 c,
                 new InternalServerError(

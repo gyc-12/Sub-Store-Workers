@@ -4,7 +4,7 @@ import resourceCache from '../utils/resource-cache';
 
 export default async function download(url: string, ua: string) {
 
-    ua = ua || 'Quantumult%20X/1.0.29 (iPhone14,5; iOS 15.4.1)';
+    ua = ua ||'clash.meta';
     const id = hex_md5(ua + url);
     const http = HTTP({
         headers: {
