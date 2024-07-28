@@ -36,10 +36,23 @@ jobs:
           BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
           D_TOKEN: ${{ secrets.D_TOKEN }}
         run: |
+          # 替换 wrangler.toml 文件中的占位符
           sed -i "s|substore_workers_database_name|$DATABASE_NAME|g" wrangler.toml
           sed -i "s|substore_workers_database_id|$DATABASE_ID|g" wrangler.toml
           sed -i "s|substore_workers_bearer_token|$BEARER_TOKEN|g" wrangler.toml
           sed -i "s|substore_workers_d_token|$D_TOKEN|g" wrangler.toml
+          
+          # 安装 wrangler 和项目依赖
           pnpm install -g wrangler
           pnpm install
-          CLOUDFLARE_API_TOKEN="$CLOUDFLARE_API_TOKEN" wrangler deploy > /dev/null
+          
+          # 部署
+          CLOUDFLARE_API_TOKEN="$CLOUDFLARE_API_TOKEN" wrangler deploy
+          
+          # 检查部署是否成功
+          if [ $? -ne 0 ]; then
+            echo "Error: Deployment failed."
+            exit 1
+          fi
+
+          echo "Deployment successful."
