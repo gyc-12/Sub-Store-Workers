@@ -97,6 +97,7 @@ const gistBackup = async (c: Context) => {
                 case 'download':
                     $.info(`还原备份中...`);
                     content = await gist.download(GIST_BACKUP_FILE_NAME);
+                    $.info(`还原备份中...222`);
                     // restore settings
                     await $.write(content, '#sub-store');
                     // perform migration after restoring from gist
@@ -105,6 +106,7 @@ const gistBackup = async (c: Context) => {
             }
             return success(c);
         } catch (err) {
+            $.info('12324'+JSON.stringify(err));
             return failed(
                 c,
                 new InternalServerError(

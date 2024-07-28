@@ -99,25 +99,44 @@ export function HTTP(defaultOptions = {}): { get: (any), post: (any), put: (any)
         'PATCH',
     ];
     async function send(method: string, options: RequestInit|string): Promise<Response | null | undefined> {
-        const url = typeof options === 'string' ? options : options.url;
+        console.log(`还原备份中66666..`+options);
+        const baseURL = defaultOptions.baseURL;
+        const urlPattern = /^(https?:\/\/)/i;
+        let url = typeof options === 'string' ? options : options.url;
+        if (baseURL) {
+            if (!urlPattern.test(url)) {
+                url = baseURL + (url.startsWith('/') ? url : '/' + url);
+            }
+        }
+      
         if (typeof options === 'string') {
             options = { method: method };
         } else {
             options.method = method;
         }
+      
+        console.log(`还原备份中.3222..`+url);
         options = { ...defaultOptions, ...options };
+    
         return await fetch(url, options).then(
-            (res: Response) => {
+          (res) => {
+                console.log(`还原备份中.3222..` + JSON.stringify(options));
+                console.log(`还原备份中.3222..状态码: ` + res.status);
+        
                 if (res.ok) {
-                    return res;
+                   
+                   return res;
+                } else {
+                    
+                    throw new Error(`HTTP error! status: ${res.status}`);
                 }
             }
         ).catch(
             (e) => {
-                new Error(e.message);
-                return null;
+                console.log(`还原备份中出错: ` + e.message);
+                throw e; // 重新抛出错误，让调用者知道发生了错误
             }
-        )
+        );
     }
     const http = {};
     methods.forEach(
